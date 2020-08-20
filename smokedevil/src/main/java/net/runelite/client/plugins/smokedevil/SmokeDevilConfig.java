@@ -36,7 +36,7 @@ public interface SmokeDevilConfig extends Config
 {
 
 
-    // Sections
+    //Sections
 
     @ConfigTitleSection(
             name = "General",
