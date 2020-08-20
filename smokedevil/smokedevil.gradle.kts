@@ -1,9 +1,9 @@
-version = "0.0.1"
+version = "0.6.9"
 
-project.extra["PluginName"] = "Smeety"
-project.extra["PluginDescription"] = "Smeetys Cock converter plugin"
-project.extra["PluginProvider"] = "ImNo"
-project.extra["Support"] = "https://www.youtube.com/watch?v=hPS6bl9QOHw"
+project.extra["PluginName"] = "Smoke Devil"
+project.extra["PluginDescription"] = "Plugin for killing Thermonuclear Smoke Devil"
+project.extra["PluginProvider"] = "ImNo & Smeety"
+project.extra["Support"] = "https://discord.gg/dWXAAE"
 
 tasks {
     jar {

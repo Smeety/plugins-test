@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.Smeety;
+package net.runelite.client.plugins.smokedevil;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
@@ -47,30 +47,30 @@ import java.util.List;
 
 
 @Slf4j
-public class SmeetyPlugin extends Plugin {
+public class SmokeDevilPlugin extends Plugin {
     // Injects our config
     @Inject
     private ConfigManager configManager;
     @Inject
-    private SmeetyConfig config;
+    private SmokeDevilConfig config;
     @Inject
     private Client client;
     @Inject
     private ClientThread clientThread;
     @Inject
-    private SmeetyOverlay overlay;
+    private SmokeDevilOverlay overlay;
     @Inject
     private OverlayManager overlayManager;
 
     @Provides
-    SmeetyConfig provideConfig(ConfigManager configManager) {
-        return configManager.getConfig(SmeetyConfig.class);
+    SmokeDevilConfig provideConfig(ConfigManager configManager) {
+        return configManager.getConfig(SmokeDevilConfig.class);
     }
 
 
     @Subscribe
     private void onConfigChanged(ConfigChanged event) {
-        if (event.getGroup().equals("Smeety"))
+        if (event.getGroup().equals("smokedevil"))
         {
             switch(event.getKey())
             {
@@ -94,13 +94,19 @@ public class SmeetyPlugin extends Plugin {
             if(npc.getId() == 499)
             {
                 NPC_NAME = npc;
-                if (!overlayManager.anyMatch(o -> o instanceof SmeetyOverlay))
+                if (!overlayManager.anyMatch(o -> o instanceof SmokeDevilOverlay))
                 {
                     overlayManager.add(overlay);
                 }
             }
         }
 
+    }
+
+    @Subscribe
+    private void onGameStateChanged(final GameStateChanged event)
+    {
+        NPC_NAME = null;
     }
 
     @Getter(AccessLevel.PACKAGE)
@@ -122,7 +128,7 @@ public class SmeetyPlugin extends Plugin {
         if(current.getId() == 499)
         {
             NPC_NAME = current;
-            if (!overlayManager.anyMatch(o -> o instanceof SmeetyOverlay))
+            if (!overlayManager.anyMatch(o -> o instanceof SmokeDevilOverlay))
             {
                 overlayManager.add(overlay);
             }
@@ -141,7 +147,7 @@ public class SmeetyPlugin extends Plugin {
 
     @Override
     protected void shutDown() {
-        if (overlayManager.anyMatch(o -> o instanceof SmeetyOverlay))
+        if (overlayManager.anyMatch(o -> o instanceof SmokeDevilOverlay))
         {
             overlayManager.remove(overlay);
         }
@@ -170,6 +176,13 @@ public class SmeetyPlugin extends Plugin {
 
     private final int ice_barrage = 369;
     private WorldPoint lastduslocation;
+
+    @Getter(AccessLevel.PACKAGE)
+    private int barragedelay = 5;
+
+    @Getter(AccessLevel.PACKAGE)
+    private boolean delaying = false;
+
     @Subscribe
     public void onGameTick(GameTick event) {
         if(NPC_NAME == null)
@@ -178,11 +191,21 @@ public class SmeetyPlugin extends Plugin {
         }
         log.info("Counting up 1tick: ");
         barrages_ticks ++;
+        if(barragedelay == 1)
+        {
+            delaying = false;
+        }
+        if(barragedelay > 1)
+        {
+            barragedelay--;
+        }
         log.info("TOTAL:" + barrages_ticks);
         if(is_barraged && !need1reload) {
             if (!NPC_NAME.getWorldLocation().equals(lastduslocation)) {
                 log.info("The thing moved: " + NPC_NAME.getWorldLocation().getX() + "!=" + lastduslocation.getX());
                 is_barraged = false;
+                delaying = true;
+                barragedelay = 5;
                 //barrages_ticks_max = barrages_ticks;
                 //NOTE TO SELF: Its always 32 dont set it idiot
                 barrages_ticks = 0;
